@@ -14,6 +14,8 @@
 - 📝 **多种输出格式**: 支持添加节点ID、摘要、原文等信息
 - ⚡ **异步处理**: 支持并发处理提高效率
 - 📋 **详细日志**: 使用Rich库提供美观的日志输出
+- 🌐 **Web API支持**: 提供RESTful API接口，支持异步任务处理
+- 📁 **文件上传下载**: 支持在线PDF上传和结果文件下载
 
 ## 安装
 
@@ -53,13 +55,15 @@ GEMINI_API_KEY="your-gemini-api-key"
 
 ## 使用方法
 
-### 基本用法
+### 方式1: 命令行使用
+
+#### 基本用法
 
 ```bash
 python main.py --pdf_path path/to/your/document.pdf
 ```
 
-### 完整参数
+#### 完整参数
 
 ```bash
 python main.py \
@@ -74,23 +78,71 @@ python main.py \
   --if-add-node-text no
 ```
 
+### 方式2: Web API 使用
+
+#### 启动API服务器
+
+```bash
+# 启动FastAPI服务器
+python api_main.py
+
+# 或者使用uvicorn直接启动
+uvicorn api_main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+服务启动后访问 `http://localhost:8000/docs` 查看API文档。
+
+#### API 端点
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `POST /api/process-pdf/` | POST | 上传PDF并开始处理 |
+| `GET /api/status/{task_id}` | GET | 查询任务状态 |
+| `GET /api/download/{task_id}` | GET | 下载处理结果 |
+
+#### 使用示例
+
+1. **上传PDF并开始处理**:
+```bash
+curl -X POST "http://localhost:8000/api/process-pdf/" \
+  -F "pdf_file=@your_document.pdf" \
+  -F "model=deepseek-chat" \
+  -F "toc_check_pages=20" \
+  -F "max_pages_per_node=10" \
+  -F "max_tokens_per_node=20000" \
+  -F "if_add_node_id=yes" \
+  -F "if_add_node_summary=no" \
+  -F "if_add_doc_description=yes" \
+  -F "if_add_node_text=no"
+```
+
+2. **查询任务状态**:
+```bash
+curl "http://localhost:8000/api/status/{task_id}"
+```
+
+3. **下载结果**:
+```bash
+curl -O "http://localhost:8000/api/download/{task_id}"
+```
+
 ### 参数说明
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `--pdf_path` | str | - | PDF文件路径 |
-| `--model` | str | deepseek-chat | 使用的LLM模型 |
-| `--toc-check-pages` | int | 20 | 检查目录的页面数量 |
-| `--max-pages-per-node` | int | 10 | 每个节点的最大页面数 |
-| `--max-tokens-per-node` | int | 20000 | 每个节点的最大token数 |
-| `--if-add-node-id` | str | yes | 是否添加节点ID |
-| `--if-add-node-summary` | str | no | 是否添加节点摘要 |
-| `--if-add-doc-description` | str | yes | 是否添加文档描述 |
-| `--if-add-node-text` | str | no | 是否添加节点原文 |
+| `pdf_path` / `pdf_file` | str/file | - | PDF文件路径或上传文件 |
+| `model` | str | deepseek-chat | 使用的LLM模型 |
+| `toc_check_pages` | int | 20 | 检查目录的页面数量 |
+| `max_pages_per_node` | int | 10 | 每个节点的最大页面数 |
+| `max_tokens_per_node` | int | 20000 | 每个节点的最大token数 |
+| `if_add_node_id` | str | yes | 是否添加节点ID |
+| `if_add_node_summary` | str | no | 是否添加节点摘要 |
+| `if_add_doc_description` | str | yes | 是否添加文档描述 |
+| `if_add_node_text` | str | no | 是否添加节点原文 |
 
 ## 输出格式
 
-处理完成后，会在 `results/` 目录下生成结构化的JSON文件：
+处理完成后，会生成结构化的JSON文件：
 
 ```json
 {
@@ -126,6 +178,12 @@ python main.py \
 
 ```
 pageindex/
+├── api/                         # Web API模块
+│   ├── __init__.py
+│   ├── routers/                 # API路由
+│   │   ├── __init__.py
+│   │   └── pdf_processing.py    # PDF处理路由
+│   └── services.py              # API服务层
 ├── app/
 │   ├── core/                    # 核心功能模块
 │   │   ├── document_parser.py   # 主要文档解析器
@@ -143,8 +201,11 @@ pageindex/
 │       └── ...
 ├── docs/                        # 文档目录
 ├── logs/                        # 日志文件
-├── results/                     # 输出结果
-├── main.py                      # 主程序入口
+├── results/                     # 命令行模式输出结果
+├── api_results/                 # API模式输出结果
+├── uploads_api/                 # API上传文件临时目录
+├── main.py                      # 命令行程序入口
+├── api_main.py                  # Web API程序入口
 └── requirements.txt             # 依赖列表
 ```
 
@@ -175,6 +236,12 @@ pageindex/
 - 验证提取结果的准确性
 - 自动修正错误的页码映射
 
+### Web API ([`api/`](api/))
+- 提供RESTful API接口
+- 支持异步任务处理和状态查询
+- 文件上传下载功能
+- 任务状态管理
+
 ## API支持
 
 支持多种LLM服务商：
@@ -189,6 +256,87 @@ pageindex/
 - 实时处理进度显示
 - 详细的错误信息和调试日志
 - 处理结果的准确性统计
+- API请求和响应日志
+
+## 部署建议
+
+### 生产环境部署
+
+1. **使用Gunicorn部署**:
+```bash
+pip install gunicorn
+gunicorn api_main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
+
+2. **使用Docker部署**:
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["gunicorn", "api_main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+```
+
+3. **使用Docker Compose部署**:
+
+创建 `docker-compose.yml` 文件：
+```yaml
+version: '3.8'
+
+services:
+  pageindex-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL}
+      - CHATGPT_API_KEY=${CHATGPT_API_KEY}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./api_results:/app/api_results
+      - ./uploads_api:/app/uploads_api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 可选：添加Redis用于生产环境任务状态存储
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+```
+
+启动服务：
+```bash
+# 启动所有服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f pageindex-api
+
+# 停止服务
+docker-compose down
+```
+
+4. **任务状态存储**: 生产环境建议使用Redis或数据库替代内存存储任务状态。
 
 ## 贡献
 
@@ -207,4 +355,4 @@ MIT License
 
 ---
 
-如需更多帮助，请查看代码注释或提交。
+如需更多帮助，请查看代码注释或提交Issue。
