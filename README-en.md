@@ -1,6 +1,7 @@
 # PageIndex - PDF Document Structure Analyzer
 [![中文](https://img.shields.io/badge/语言-中文-red)](README.md) 
 [![English](https://img.shields.io/badge/language-English-blue)](readme-en.md)
+
 A PDF document structure analysis tool based on Large Language Models (LLM) that can automatically extract document table of contents structure and generate hierarchical JSON format output.
 
 This project is a decoupled version of [Vectify AI](https://vectify.ai/)'s [PageIndex](https://github.com/VectifyAI/PageIndex.git) with enhanced logging capabilities.

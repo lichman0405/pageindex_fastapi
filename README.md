@@ -1,6 +1,6 @@
 # PageIndex - PDF Document Structure Analyzer
 [![中文](https://img.shields.io/badge/语言-中文-red)](README.md) 
-[![English](https://img.shields.io/badge/language-English-blue)](readme-en.md)
+[![English](https://img.shields.io/badge/language-English-blue)](README-en.md)
 
 一个基于大语言模型(LLM)的PDF文档结构分析工具，能够自动提取文档的目录结构并生成层次化的JSON格式输出。
 
