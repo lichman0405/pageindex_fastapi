@@ -124,7 +124,7 @@ def toc_extractor(page_list, toc_page_list, model=MODEL):
     for page_index in toc_page_list:
         toc_content += page_list[page_index][0]
     toc_content = transform_dots_to_colon(toc_content)
-    has_page_index = detect_page_index(toc_content, model=model, base_url=BASE_URL, api_key=API_KEY)
+    has_page_index = detect_page_index(toc_content, model=model)
     
     return {
         "toc_content": toc_content,
