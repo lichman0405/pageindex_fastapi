@@ -1,0 +1,15 @@
+version: '3.8' # 指定 docker-compose 文件版本
+
+services:
+  pdf_processing_api: # 您的服务名称
+    build:
+      context: . # Docker 构建上下文路径 (当前目录)
+      dockerfile: Dockerfile # 使用的 Dockerfile 文件名
+    container_name: pdf_api_service # 容器的自定义名称 (可选)
+    ports:
+      - "3434:8000"
+    volumes:
+      - ./uploads_api:/app/uploads_api
+      - ./api_results:/app/api_results
+    environment:
+      - PYTHONUNBUFFERED=1 # 确保日志实时输出 (Dockerfile 中也已设置)

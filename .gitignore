@@ -1,0 +1,28 @@
+# not upload __pycache__ to git
+__pycache__/
+
+# not upload .vscode to git
+.vscode/
+
+# not upload .idea to git
+.idea/
+
+# not upload .DS_Store to git
+.DS_Store
+
+# not upload .env to git
+.env
+
+# API specific temp folders
+/uploads_api/
+/api_results/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv
+venv/
+ENV/

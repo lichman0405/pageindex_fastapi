@@ -1,0 +1,9 @@
+openai
+pymupdf
+PyPDF2
+python-dotenv
+tiktoken
+pyyaml
+fastapi
+uvicorn[standard]
+python-multipart
